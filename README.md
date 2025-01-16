@@ -1,0 +1,1 @@
+This is a chrome extension that reads email details from Gmail.
