@@ -1,0 +1,269 @@
+body {
+  width: 350px;
+  height: 450px;
+  padding: 8px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+.email-detail {
+  margin-bottom: 4px;
+  background: #ffffff;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 600;
+  color: #1a73e8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  min-width: 55px;
+}
+
+.content {
+  background: #f8f9fa;
+  padding: 4px 6px;
+  word-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.4;
+  border: 1px solid #e0e0e0;
+}
+
+#from.content, #subject.content {
+  flex: 1;
+  margin: 0;
+  max-height: 1.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-detail.body-section {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.body-section .label {
+  display: block;
+  margin-bottom: 2px;
+}
+
+#body.content {
+  display: block;
+  width: 100%;
+  max-height: calc(1.6em * 6);
+  min-height: calc(1.6em * 6);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #1a73e8 #f8f9fa;
+  white-space: pre-wrap;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  line-height: 1.6;
+  padding: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background-color: #1a73e8;
+}
+
+.reply-section {
+  margin-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 6px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#reply-text {
+  width: 100%;
+  flex-grow: 1;
+  min-height: calc(1.6em * 8);
+  max-height: calc(1.6em * 8);
+  padding: 6px;
+  border: 1px solid #e0e0e0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  background: #f8f9fa;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #1a73e8 #f8f9fa;
+  white-space: pre-wrap;
+}
+
+#reply-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+#reply-text::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+#reply-text::-webkit-scrollbar-thumb {
+  background-color: #1a73e8;
+}
+
+.button-container {
+  display: flex;
+  gap: 4px;
+}
+
+.generate-btn {
+  flex: 1;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.copy-btn {
+  background-color: #f8f9fa;
+  color: #1a73e8;
+  border: 1px solid #1a73e8;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.copy-btn:disabled {
+  background-color: #f1f3f4;
+  color: #80868b;
+  border-color: #dadce0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.copy-btn:not(:disabled):hover, .generate-btn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.copy-btn.copied {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+  border-color: #1e8e3e;
+}
+
+.generate-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d32f2f;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.name-section {
+  margin-bottom: 8px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#my-name {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid #e0e0e0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#my-name::placeholder {
+  color: #d32f2f;
+  opacity: 0.7;
+}
+
+#my-name:focus {
+  border-color: #1a73e8;
+}
+
+/* Add error message style */
+.name-error {
+  color: #d32f2f;
+  font-size: 11px;
+  margin-top: 2px;
+  display: none;
+}
+
+.name-error.visible {
+  display: block;
+}
+
+.settings-section {
+  margin-bottom: 8px;
+  padding: 4px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.select-container label {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+#sentiment {
+  padding: 2px 4px;
+  font-size: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  outline: none;
+  background: #f8f9fa;
+  color: #3c4043;
+  cursor: pointer;
+}
+
+#sentiment:focus {
+  border-color: #1a73e8;
+}
+
+/* Add focus state */
+#body.content:focus {
+  border-color: #1a73e8;
+  outline: none;
+} 

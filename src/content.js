@@ -7,26 +7,30 @@ function extractEmailDetails() {
     };
 
     try {
-        // Get sender information
-        const fromElement = document.querySelector('[email]');
+        // Get sender information with multiple selectors
+        const fromElement = document.querySelector('[email]') || 
+                          document.querySelector('.gD') ||
+                          document.querySelector('.g2');
         if (fromElement) {
-            emailDetails.from = fromElement.getAttribute('email');
+            emailDetails.from = fromElement.getAttribute('email') || fromElement.textContent.trim();
         }
 
-        // Get subject - try multiple possible selectors
+        // Get subject with multiple selectors
         const subjectElement = 
             document.querySelector('h2[data-thread-perm-id]') || 
             document.querySelector('.hP') ||
-            document.querySelector('[data-subject]');
+            document.querySelector('[data-subject]') ||
+            document.querySelector('.ha');
         if (subjectElement) {
             emailDetails.subject = subjectElement.textContent.trim();
         }
 
-        // Get email body - try multiple possible selectors
+        // Get email body with multiple selectors
         const bodyElement = 
             document.querySelector('.a3s.aiL') || 
             document.querySelector('.message-content') ||
-            document.querySelector('.email-content');
+            document.querySelector('.email-content') ||
+            document.querySelector('.gs');
         if (bodyElement) {
             // Clone the body element to work with
             const bodyClone = bodyElement.cloneNode(true);
@@ -46,7 +50,9 @@ function extractEmailDetails() {
                 .trim();
         }
 
+        console.log('Extracted email details:', emailDetails);
         return emailDetails;
+
     } catch (error) {
         console.error('Error extracting email details:', error);
         return emailDetails;
@@ -60,11 +66,13 @@ function initializeMessageListener() {
     if (isInitialized) return;
     
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        console.log('Received message:', request);
         if (request.action === 'getEmailDetails') {
             const details = extractEmailDetails();
+            console.log('Sending response:', details);
             sendResponse(details);
         }
-        return true;
+        return true; // Keep the message channel open for async response
     });
     
     isInitialized = true;
@@ -82,4 +90,6 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, {
     childList: true,
     subtree: true
-}); 
+});
+
+console.log('Email Reader content script loaded'); 

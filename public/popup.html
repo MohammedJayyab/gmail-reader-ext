@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email Reader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="name-section">
+    <div class="label">My Name:</div>
+    <div style="flex: 1;">
+      <input type="text" id="my-name" placeholder="Enter your name">
+      <div class="name-error">Please enter your name</div>
+    </div>
+  </div>
+  <div class="settings-section">
+    <label class="checkbox-label">
+      <input type="checkbox" id="add-re">
+      Add "Re:" to subject
+    </label>
+    <div class="select-container">
+      <label for="sentiment">Tone:</label>
+      <select id="sentiment">
+        <option value="positive">Positive</option>
+        <option value="neutral" selected>Neutral</option>
+        <option value="negative">Negative</option>
+      </select>
+    </div>
+  </div>
+  <div class="email-detail">
+    <div class="label">From:</div>
+    <div class="content" id="from">Loading...</div>
+  </div>
+  <div class="email-detail">
+    <div class="label">Subject:</div>
+    <div class="content" id="subject">Loading...</div>
+  </div>
+  <div class="email-detail body-section">
+    <div class="label">Body</div>
+    <textarea class="content" id="body" spellcheck="true">Loading...</textarea>
+  </div>
+  <div class="reply-section">
+    <div class="label">Generate Reply</div>
+    <textarea id="reply-text" placeholder="Generated reply will appear here..."></textarea>
+    <div class="button-container">
+      <button class="generate-btn" id="generate-btn">Generate Reply</button>
+      <button class="copy-btn" id="copy-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+        </svg>
+        Copy
+      </button>
+    </div>
+  </div>
+  <script src="popup.js" type="module"></script>
+</body>
+</html> 
