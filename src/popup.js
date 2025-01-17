@@ -117,7 +117,7 @@ function generateReply(emailDetails) {
 // Add this function
 async function setupNameInput() {
     const nameInput = document.getElementById('my-name');
-    const generateBtn = document.getElementById('generate-btn');
+    const nameError = document.querySelector('.name-error');
     
     // Load saved name
     const savedName = await settingsService.getMyName();
@@ -126,6 +126,7 @@ async function setupNameInput() {
     // Add input event listener to remove error state
     nameInput.addEventListener('input', () => {
         nameInput.style.borderColor = nameInput.value.trim() ? '#e0e0e0' : '#d32f2f';
+        nameError.classList.toggle('visible', !nameInput.value.trim());
     });
     
     // Save name when changed
@@ -134,15 +135,17 @@ async function setupNameInput() {
         if (name) {
             await settingsService.setMyName(name);
             nameInput.style.borderColor = '#e0e0e0';
+            nameError.classList.remove('visible');
         } else {
             nameInput.style.borderColor = '#d32f2f';
+            nameError.classList.add('visible');
         }
     });
 
     // Initial validation
     if (!savedName) {
         nameInput.style.borderColor = '#d32f2f';
-        nameInput.placeholder = 'Please enter your name';
+        nameError.classList.add('visible');
         nameInput.focus();
     }
 }
@@ -171,41 +174,131 @@ async function setupSettings() {
     });
 }
 
-// Initialize when the document is ready
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Popup initialized');
-    await setupNameInput();
-    await setupSettings();
+// Add at the beginning of your popup.js
+async function checkStorageConsent() {
+    try {
+        const { storageConsent } = await chrome.storage.local.get('storageConsent');
+        return storageConsent === true;
+    } catch (error) {
+        console.error('Error checking storage consent:', error);
+        return false;
+    }
+}
+
+async function handleConsent() {
+    const consentOverlay = document.getElementById('consent-overlay');
+    const mainContent = document.querySelector('.settings-bar');
     
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        console.log('Current tab:', tabs[0]);
-        
-        // Check if we're on Gmail
-        if (!tabs[0].url.includes('mail.google.com')) {
-            showError('Please open Gmail to use this extension');
+    // Check if consent was already given
+    const hasConsent = await checkStorageConsent();
+    if (hasConsent) {
+        if (consentOverlay) consentOverlay.style.display = 'none';
+        if (mainContent) {
+            mainContent.style.display = 'flex';
+            return true;
+        }
+    }
+
+    return new Promise((resolve) => {
+        const acceptButton = document.getElementById('accept-consent');
+        const rejectButton = document.getElementById('reject-consent');
+
+        if (!acceptButton || !rejectButton || !consentOverlay || !mainContent) {
+            console.error('Required elements not found');
+            resolve(false);
             return;
         }
 
-        // Try to send message to content script
-        chrome.tabs.sendMessage(
-            tabs[0].id,
-            {action: 'getEmailDetails'},
-            function(response) {
-                console.log('Received response:', response);
+        acceptButton.addEventListener('click', async () => {
+            try {
+                await chrome.storage.local.set({ storageConsent: true });
+                consentOverlay.style.display = 'none';
+                mainContent.style.display = 'flex';
+                resolve(true);
+            } catch (error) {
+                console.error('Error saving consent:', error);
+                resolve(false);
+            }
+        });
+
+        rejectButton.addEventListener('click', () => {
+            window.close();
+            resolve(false);
+        });
+    });
+}
+
+// Update the message sending part
+function tryConnectToContentScript(tabId, retryCount = 0) {
+    return new Promise(async (resolve, reject) => {
+        // First try to inject the content script
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ['content.js']
+            });
+            console.log('Content script injected');
+        } catch (err) {
+            console.log('Script already injected or injection failed:', err);
+        }
+
+        // Then try to send message
+        chrome.tabs.sendMessage(tabId, { action: 'getEmailDetails' }, function(response) {
+            if (chrome.runtime.lastError) {
+                console.error('Connection error:', chrome.runtime.lastError.message);
                 
-                if (chrome.runtime.lastError) {
-                    console.error('Runtime error:', chrome.runtime.lastError);
-                    showError('Please open an email in Gmail');
-                    return;
+                if (retryCount < 3) {
+                    console.log(`Retrying connection (${retryCount + 1}/3)...`);
+                    setTimeout(() => {
+                        resolve(tryConnectToContentScript(tabId, retryCount + 1));
+                    }, 1000);
+                } else {
+                    reject(new Error('Could not connect to Gmail page. Please refresh the page.'));
                 }
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
+// Initialize when the document is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Popup initialized');
+    
+    try {
+        // Check consent first
+        const hasConsent = await handleConsent();
+        if (!hasConsent) {
+            console.log('Consent not given');
+            return;
+        }
+
+        // Rest of your initialization code
+        await setupNameInput();
+        await setupSettings();
+        
+        chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+            if (!tabs[0].url.includes('mail.google.com')) {
+                showError('Please open Gmail to use this extension');
+                return;
+            }
+
+            try {
+                const response = await tryConnectToContentScript(tabs[0].id);
                 if (response) {
                     updatePopup(response);
                     generateReply(response);
-                    setupCopyButton(); // Initialize copy button
+                    setupCopyButton();
                 } else {
                     showError('No email data found');
                 }
+            } catch (error) {
+                showError(error.message);
             }
-        );
-    });
+        });
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to initialize extension');
+    }
 }); 

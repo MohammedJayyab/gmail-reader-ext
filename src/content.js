@@ -1,3 +1,60 @@
+// Add at the top of content.js
+console.log('Content script loading...');
+
+// Notify background script that content script is loaded
+chrome.runtime.sendMessage({ action: 'contentScriptLoaded' })
+    .catch(err => console.error('Failed to notify background script:', err));
+
+// Initialize message listener
+function initializeMessageListener() {
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+            console.log('Message received in content script:', request);
+            
+            if (request.action === 'getEmailDetails') {
+                try {
+                    const details = extractEmailDetails();
+                    console.log('Extracted details:', details);
+                    sendResponse(details);
+                } catch (error) {
+                    console.error('Error in content script:', error);
+                    sendResponse(null);
+                }
+                return true; // Keep the message channel open
+            }
+        });
+        console.log('Message listener initialized');
+    }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeMessageListener();
+        setupObserver();
+    });
+} else {
+    initializeMessageListener();
+    setupObserver();
+}
+
+function setupObserver() {
+    // Create observer instance
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                initializeMessageListener();
+            }
+        }
+    });
+
+    // Start observing
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
 // Function to extract email details
 function extractEmailDetails() {
     const emailDetails = {
@@ -58,38 +115,5 @@ function extractEmailDetails() {
         return emailDetails;
     }
 }
-
-// Initialize message listener
-let isInitialized = false;
-
-function initializeMessageListener() {
-    if (isInitialized) return;
-    
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('Received message:', request);
-        if (request.action === 'getEmailDetails') {
-            const details = extractEmailDetails();
-            console.log('Sending response:', details);
-            sendResponse(details);
-        }
-        return true; // Keep the message channel open for async response
-    });
-    
-    isInitialized = true;
-}
-
-// Initialize as soon as possible
-initializeMessageListener();
-
-// Also initialize when the page content changes
-const observer = new MutationObserver(() => {
-    initializeMessageListener();
-});
-
-// Start observing the document body for changes
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
 
 console.log('Email Reader content script loaded'); 

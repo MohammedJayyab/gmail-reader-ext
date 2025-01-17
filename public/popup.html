@@ -5,20 +5,39 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="name-section">
-    <div class="label">My Name:</div>
-    <div style="flex: 1;">
-      <input type="text" id="my-name" placeholder="Enter your name">
-      <div class="name-error">Please enter your name</div>
+  <!-- Add consent overlay -->
+  <div id="consent-overlay" class="consent-overlay">
+    <div class="consent-dialog">
+      <h2>Storage Permission Required</h2>
+      <p>This extension needs to store some settings locally to function properly:</p>
+      <ul>
+        <li>Your name for email signatures</li>
+        <li>Email tone preference</li>
+        <li>Subject line preferences</li>
+      </ul>
+      <p>No email content or sensitive data is stored.</p>
+      <div class="consent-buttons">
+        <button id="accept-consent" class="primary-btn">Accept & Continue</button>
+        <button id="reject-consent" class="secondary-btn">Reject & Close</button>
+      </div>
     </div>
   </div>
-  <div class="settings-section">
-    <label class="checkbox-label">
-      <input type="checkbox" id="add-re">
-      Add "Re:" to subject
-    </label>
-    <div class="select-container">
-      <label for="sentiment">Tone:</label>
+
+  <div class="settings-bar">
+    <div class="settings-group">
+      <label class="settings-label">My Name:</label>
+      <input type="text" id="my-name" placeholder="Enter your name">
+    </div>
+
+    <div class="settings-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="add-re">
+        Re:
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label" for="sentiment">Tone:</label>
       <select id="sentiment">
         <option value="positive">Positive</option>
         <option value="neutral" selected>Neutral</option>
@@ -26,6 +45,10 @@
       </select>
     </div>
   </div>
+
+  <!-- Name error message -->
+  <div class="name-error">Please enter your name</div>
+
   <div class="email-detail">
     <div class="label">From:</div>
     <div class="content" id="from">Loading...</div>

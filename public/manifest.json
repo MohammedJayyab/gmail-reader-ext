@@ -8,12 +8,17 @@
     "scripting",
     "tabs",
     "clipboardWrite",
-    "storage"
+    "storage",
+    "webNavigation"
   ],
   "host_permissions": [
-    "https://mail.google.com/*",
+    "*://mail.google.com/*",
     "https://api.deepseek.com/*"
   ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -24,9 +29,16 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://mail.google.com/*"],
+      "matches": ["*://mail.google.com/*"],
       "js": ["content.js"],
-      "run_at": "document_end"
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["*.js", "*.js.map"],
+      "matches": ["*://mail.google.com/*"]
     }
   ],
   "icons": {

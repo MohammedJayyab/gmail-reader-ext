@@ -21,10 +21,10 @@ async function ensureDir(dir) {
 async function copyFileIfExists(src, dest) {
     try {
         await fs.copyFile(src, dest);
-        console.log(`Copied: ${src} -> ${dest}`);
+        console.log(`Copied: ${src.replace(/\\/g, '/')} -> ${dest.replace(/\\/g, '/')}`);
     } catch (error) {
         if (error.code === 'ENOENT') {
-            console.warn(`Warning: Source file not found: ${src}`);
+            console.warn(`Warning: Source file not found: ${src.replace(/\\/g, '/')}`);
         } else {
             throw error;
         }
@@ -43,11 +43,11 @@ async function fileExists(filePath) {
 
 // Function to find valid entry points
 async function getValidEntryPoints() {
-    const files = ['popup.js', 'content.js', 'ai-service.js'];
+    const files = ['popup.js', 'content.js', 'background.js', 'ai-service.js'];
     const validEntryPoints = [];
 
     for (const file of files) {
-        const srcPath = path.join('src', file);
+        const srcPath = path.join('src', file).replace(/\\/g, '/');
         if (await fileExists(srcPath)) {
             validEntryPoints.push(srcPath);
         }
@@ -139,7 +139,7 @@ async function build() {
 
         // Get valid entry points
         const entryPoints = await getValidEntryPoints();
-        console.log('Building with entry points:', entryPoints);
+        console.log('Building with entry points:', entryPoints.map(p => p.replace(/\\/g, '/')));
 
         // Define environment variables for build
         const define = {
@@ -159,24 +159,33 @@ async function build() {
             target: ['chrome58', 'firefox57', 'safari11'],
             loader: { '.svg': 'text' },
             sourcemap: true,
-            splitting: true,
-            chunkNames: 'chunks/[name]-[hash]',
+            splitting: false,
             external: ['chrome'],
-            assetNames: 'assets/[name]-[hash]',
+            outbase: 'src',
+            publicPath: '/',
+            write: true,
             metafile: true,
+            platform: 'browser'
         };
         
-        if (watch) {
-            const context = await esbuild.context(buildOptions);
-            await context.watch();
-            console.log('Watching for changes...');
-        } else {
-            const result = await esbuild.build(buildOptions);
-            console.log('Build complete!');
-            
-            if (result.metafile) {
-                console.log('Output files:', Object.keys(result.metafile.outputs));
+        try {
+            if (watch) {
+                const context = await esbuild.context(buildOptions);
+                await context.watch();
+                console.log('Watching for changes...');
+            } else {
+                const result = await esbuild.build(buildOptions);
+                console.log('Build complete!');
+                
+                if (result.metafile) {
+                    const outputs = Object.keys(result.metafile.outputs)
+                        .map(p => p.replace(/\\/g, '/'));
+                    console.log('Output files:', outputs);
+                }
             }
+        } catch (buildError) {
+            console.error('Build process failed:', buildError);
+            throw buildError;
         }
     } catch (error) {
         console.error('Build failed:', error);
