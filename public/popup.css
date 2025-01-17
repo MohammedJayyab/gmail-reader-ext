@@ -1,6 +1,6 @@
 body {
   width: 450px;
-  height: 450px;
+  height: 600px;
   padding: 8px;
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
@@ -64,8 +64,8 @@ html {
 #body.content {
   display: block;
   width: 100%;
-  max-height: calc(1.6em * 6);
-  min-height: calc(1.6em * 6);
+  max-height: calc(1.6em * 8);
+  min-height: calc(1.6em * 8);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #1a73e8 #f8f9fa;
@@ -93,16 +93,16 @@ html {
   margin-top: 8px;
   border-top: 1px solid #e0e0e0;
   padding-top: 6px;
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 #reply-text {
   width: 100%;
-  flex-grow: 1;
-  min-height: calc(1.6em * 8);
-  max-height: calc(1.6em * 8);
+  flex: 1;
+  min-height: 0;
   padding: 6px;
   border: 1px solid #e0e0e0;
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -110,7 +110,7 @@ html {
   line-height: 1.6;
   resize: none;
   box-sizing: border-box;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   background: #f8f9fa;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -133,6 +133,8 @@ html {
 .button-container {
   display: flex;
   gap: 4px;
+  margin-top: auto;
+  padding-bottom: 8px;
 }
 
 .generate-btn {
