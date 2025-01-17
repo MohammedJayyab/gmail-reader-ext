@@ -28,3 +28,8 @@ yarn-error.log*
 # Chrome Extension specific
 *.pem
 *.crx 
+
+
+# Prompt file
+prompt.txt
+
