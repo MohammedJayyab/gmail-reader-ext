@@ -177,7 +177,7 @@ npm run clean
 │   ├── manifest.json     # Extension manifest
 │   └── icons/            # Extension icons
 ├── build.js              # Build configuration
-├── setup.js             # Project setup script
+├── config.js             # Configuration settings
 └── .env                 # Environment variables
 ```
 
